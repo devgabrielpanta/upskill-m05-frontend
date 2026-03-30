@@ -1,7 +1,7 @@
 # 🧩 Frontend — Mini ClickUp API Explorer
 
 - Autor - Gabriel: [@devgabrielpanta](https://www.github.com/devgabrielpanta)
-- Repositorio ➡️ [Acessar repositorio](https://github.com/devgabrielpanta/upskill-m05-backend)
+- Repositorio ➡️ [Acessar repositorio](https://github.com/devgabrielpanta/upskill-m05-frontend)
 
 ---
 
