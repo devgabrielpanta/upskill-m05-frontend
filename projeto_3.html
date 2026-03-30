@@ -1,0 +1,292 @@
+<html>
+
+<head>
+    <style>
+        body {
+            color: black;
+            font-family: Arial;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #006600;
+        }
+
+        h2 {
+            color: #003366;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        b {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+        }
+
+        i {
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>💡 Projeto 3 — Integração Frontend com Backend</h1>
+
+<ul>
+<li>O frontend passa a consumir dados da API usando <b>fetch</b>.</li>
+<li>Os tipos/interfaces continuam em ficheiros próprios (ex: Task, User).</li>
+<li>Os pedidos HTTP são feitos dentro da pasta <b>api/</b>.</li>
+</ul>
+
+<hr>
+
+<h2>📁 Estrutura no Frontend</h2>
+
+<pre>
+src/
+  api/
+    apiTaskService.ts
+    apiUserService.ts
+    apiTagService.ts
+</pre>
+
+<hr>
+
+<h2>📡 Exemplo — apiTaskService</h2>
+
+<p>Ficheiro: <b>api/apiTaskService.ts</b></p>
+
+<pre>
+import { Task } from '../models/task';
+
+const BASE_URL = 'http://localhost:3000';
+
+// GET /tasks
+export async function getTasks(): Promise&lt;Task[]&gt; {
+  const res = await fetch(`${BASE_URL}/tasks`);
+
+  if (!res.ok) {
+    throw new Error('Erro ao buscar tasks');
+  }
+
+  return await res.json();
+}
+
+// PUT /tasks/:id
+export async function updateTask(
+  id: number,
+  task: Task
+): Promise&lt;Task&gt; {
+
+  const res = await fetch(`${BASE_URL}/tasks/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(task)
+  });
+
+  if (!res.ok) {
+    throw new Error('Erro ao atualizar task');
+  }
+
+  return await res.json();
+}
+</pre>
+
+<hr>
+
+<h2>🔄 Integração com Array no Frontend</h2>
+
+<p>Mesmo usando API, continuamos a usar um <b>array local</b> para renderizar os dados.</p>
+
+<pre>
+import { getTasks } from '../api/apiTaskService';
+import { Task } from '../models/task';
+
+// estado do frontend
+let tasks: Task[] = [];
+</pre>
+
+<h3>📌 Função loadTasks (ESSENCIAL)</h3>
+
+<pre>
+async function loadTasks() {
+  tasks = await getTasks();
+
+  renderTasks();
+}
+</pre>
+
+<h3>📌 Renderização</h3>
+
+<pre>
+function renderTasks() {
+  console.log(tasks); // ou atualizar HTML
+}
+</pre>
+
+<hr>
+
+<h3>📌 Operações com sincronização</h3>
+
+<pre>
+// criar task
+async function createTask(task: Task) {
+  await apiCreateTask(task);
+
+  await loadTasks();
+}
+
+// atualizar task
+async function editTask(task: Task) {
+  await updateTask(task.id, task);
+
+  await loadTasks();
+}
+
+// apagar task
+async function deleteTask(id: number) {
+  await apiDeleteTask(id);
+
+  await loadTasks();
+}
+</pre>
+
+<hr>
+
+<h2>🧠 Regra mais importante</h2>
+
+<pre>
+API → dados reais
+Array → estado do frontend
+loadTasks() → sincroniza os dois
+</pre>
+
+<p><b>Após qualquer POST, PUT ou DELETE:</b></p>
+
+<pre>
+await loadTasks();
+</pre>
+
+<hr>
+
+<h2>🎯 Exercício 1 — Criar chamadas à API (10 valores)</h2>
+
+<p><b>Objetivo:</b> Implementar as chamadas aos endpoints da API nos ficheiros dentro da pasta <b>api/</b>.</p>
+
+<h3>👤 Users (apiUserService.ts)</h3>
+
+<pre>
+GET /users
+POST /users
+PUT /users/:id
+PATCH /users/:id
+DELETE /users/:id
+GET /users?sort=asc|desc
+GET /users?search=nome
+GET /users/stats
+</pre>
+
+<h3>📋 Tasks (apiTaskService.ts)</h3>
+
+<pre>
+GET /tasks
+POST /tasks
+PUT /tasks/:id
+DELETE /tasks/:id
+GET /tasks?sort=asc|desc
+GET /tasks?search=titulo
+GET /tasks/stats
+GET /users/:id/tasks
+</pre>
+
+<h3>🏷️ Tags (apiTagService.ts)</h3>
+
+<pre>
+GET /tags
+POST /tags
+DELETE /tags/:id
+GET /tags/:id/tasks
+POST /tasks/:id/tags
+</pre>
+
+<i>Dicas:</i>
+<ul>
+<li>Usar sempre <b>fetch</b></li>
+<li>Verificar <b>res.ok</b></li>
+<li>Usar <b>await res.json()</b></li>
+<li>Passar objetos completos</li>
+<li>Organizar por ficheiros</li>
+</ul>
+
+<hr>
+
+<h2>🎯 Exercício 2 — Integração no Frontend (10 valores)</h2>
+
+<p><b>Objetivo:</b> Alterar o frontend para usar os métodos criados.</p>
+
+<ul>
+<li>Substituir arrays locais por API</li>
+<li>Usar funções da pasta <b>api/</b></li>
+<li>Garantir sincronização com <b>loadTasks / loadUsers</b></li>
+</ul>
+
+<h3>📌 Regra obrigatória</h3>
+
+<pre>
+await loadTasks();
+await loadUsers();
+</pre>
+
+<i>Dicas:</i>
+<ul>
+<li>A API é a fonte de verdade</li>
+<li>O array é apenas estado local</li>
+<li>Recarregar sempre após alterações</li>
+</ul>
+
+<hr>
+
+<h2>⚖️ Avaliação (0–20 valores)</h2>
+
+<ul>
+<li><b>Exercício 1 (10 valores)</b>
+    <ul>
+        <li>Chamadas a todos os endpoints</li>
+        <li>Uso correto de fetch</li>
+        <li>Organização</li>
+    </ul>
+</li>
+
+<li><b>Exercício 2 (10 valores)</b>
+    <ul>
+        <li>Integração no frontend</li>
+        <li>Uso correto de loadTasks / loadUsers</li>
+        <li>Sincronização dos dados</li>
+    </ul>
+</li>
+</ul>
+
+<hr>
+
+<h2>🎯 Objetivo</h2>
+
+<p>
+✔ Trabalhar com API real<br>
+✔ Organizar chamadas HTTP<br>
+✔ Integrar frontend com backend<br>
+✔ Garantir sincronização de dados<br>
+</p>
+
+</body>
+
+</html>
